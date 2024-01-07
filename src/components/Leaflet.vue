@@ -3,10 +3,10 @@
 </template>
 
 <script setup>
-import "leaflet/dist/leaflet.css";
-import { ref, onMounted, nextTick } from "vue";
-import L from "leaflet";
-import geoJsonData from "@/resource/mapData.json";
+import 'leaflet/dist/leaflet.css';
+import { ref, onMounted, nextTick } from 'vue';
+import L from 'leaflet';
+import geoJsonData from '@/resource/mapData.json';
 
 let map = null;
 let geojson = null;
@@ -22,26 +22,26 @@ const onEachFeature = (feature, layer) => {
 
   layer.bindTooltip(popupContent, {
     sticky: true,
-    direction: "top",
-    pane: "tooltipPane"
+    direction: 'top',
+    pane: 'tooltipPane',
   });
 
-  layer.on("mouseover", (e) => {
+  layer.on('mouseover', (e) => {
     // highlightFeature
     const layer = e.target;
 
     layer.setStyle({
       weight: 1,
-      fillOpacity: 0.35
+      fillOpacity: 0.35,
     });
 
     layer.bringToFront();
   });
-  layer.on("mouseout", (e) => {
+  layer.on('mouseout', (e) => {
     // resetHighlight
     geojson.resetStyle(e.target);
   });
-  layer.on("click", (e) => {
+  layer.on('click', (e) => {
     // zoomToFeature
     map.fitBounds(e.target.getBounds());
   });
@@ -50,10 +50,10 @@ const onEachFeature = (feature, layer) => {
 // 設定每個區塊的樣式
 const style = (feature) => {
   return {
-    fillColor: "#0000ff",
+    fillColor: '#0000ff',
     weight: 1,
     opacity: 0.5,
-    color: "#0000ff"
+    color: '#0000ff',
   };
 };
 
@@ -61,19 +61,19 @@ onMounted(() => {
   map = L.map(mapRef.value, {
     center: [24.9705832962993, 121.44031842989698],
     zoom: 16,
-    zoomControl: false
+    zoomControl: false,
   });
-  L.control.zoom({ position: "bottomright" }).addTo(map);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
 
   geojson = L.geoJson(geoJsonData.result, {
     // 定義每個區塊的樣式
     style: style,
-    onEachFeature: onEachFeature
+    onEachFeature: onEachFeature,
   }).addTo(map);
 
   // 綁定點擊地圖的事件
