@@ -17,5 +17,15 @@ module.exports = {
   rules: {
     'vue/script-setup-uses-vars': 'error', // 防止<script setup>使用的变量<template>被标记为未使用，此规则仅在启用该no-unused-vars规则时有效。
     'vue/multi-word-component-names': 'off', // 要求组件名称始终为 “-” 链接的单词
+    // 變數未使用
+    'no-unused-vars': [
+      'warn',
+      {
+        vars: 'all',
+        args: 'none',
+        caughtErrors: 'none',
+        ignoreRestSiblings: true,
+      },
+    ],
   },
 };

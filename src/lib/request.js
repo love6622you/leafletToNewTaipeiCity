@@ -1,8 +1,8 @@
-import Axios from "axios";
+import Axios from 'axios';
 
 const api = Axios.create({
   baseURL: `${import.meta.env.VITE_APP_BASE_API}`,
-  timeout: 1000
+  timeout: 1000,
 });
 
 api.interceptors.request.use(
@@ -11,7 +11,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 api.interceptors.response.use(
@@ -24,7 +24,7 @@ api.interceptors.response.use(
     } else {
       console.error(error);
     }
-  }
+  },
 );
 
 export default api;
