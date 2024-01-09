@@ -1,12 +1,20 @@
 <template>
-  <div ref="mapRef" class="h-[60dvh]" />
+  <div ref="mapRef" v-bind="$attrs" />
 </template>
 
 <script setup>
 import 'leaflet/dist/leaflet.css';
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, watch } from 'vue';
 import L from 'leaflet';
 import geoJsonData from '@/resource/mapData.json';
+
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => [],
+  },
+});
+const emit = defineEmits(['update-distance']);
 
 let map = null;
 let geojson = null;
@@ -57,6 +65,30 @@ const style = (feature) => {
   };
 };
 
+// TODO: 這裡要改成從 API 拿資料
+// const fetchGetGeolocation = async () => {
+//   try {
+//     const res = await api.getGeolocation({
+//       directory: 'tucheng.json'
+//     });
+//     list.value = res.data.result;
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+watch(
+  () => props.list,
+  (list) => {
+    // TODO: 需要先清除掉原本的 marker (可能利用 group 來做)
+    // 否則會重複出現而且會重疊
+    list.forEach((item) => {
+      const { latitude, longitude, stop_name } = item;
+      L.marker([latitude, longitude]).bindTooltip(stop_name).addTo(map);
+    });
+  },
+);
+
 onMounted(() => {
   map = L.map(mapRef.value, {
     center: [24.9705832962993, 121.44031842989698],
@@ -76,16 +108,18 @@ onMounted(() => {
     onEachFeature: onEachFeature,
   }).addTo(map);
 
-  // 綁定點擊地圖的事件
-  // function onMapClick(e) {
-  //   let popup = L.popup();
-  //   popup
-  //     .setLatLng(e.latlng)
-  //     .setContent("You clicked the map at " + e.latlng.toString())
-  //     .openOn(map);
-  // }
+  // 綁定點擊地圖的事件;
+  async function onMapClick(e) {
+    const { lat, lng } = e.latlng;
+    await emit('update-distance', lat, lng);
+    // let popup = L.popup();
+    // popup
+    //   .setLatLng(e.latlng)
+    //   .setContent('You clicked the map at ' + e.latlng.toString())
+    //   .openOn(map);
+  }
 
-  // map.on("click", onMapClick);
+  map.on('click', onMapClick);
 
   // nextTick(() => {
   //   // TODO: 根據定位再去設定中心點，如果沒有定位就使用預設的
