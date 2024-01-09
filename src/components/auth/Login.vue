@@ -46,7 +46,7 @@ const facebookData = userStore.facebook;
 // Google
 const initGoogleSDK = () => {
   google.accounts.id.initialize({
-    client_id: '1086078305871-iup5d2qsg8gnaugrh6mg28spg58a3gcf.apps.googleusercontent.com',
+    client_id: `${import.meta.env.VITE_APP_GOOGLE_ID}`,
     callback: handleGoogleResponse,
   });
 };
@@ -71,7 +71,7 @@ const handleGoogleSignIn = () => {
 const initFacebookSDK = () => {
   window.fbAsyncInit = function () {
     FB.init({
-      appId: '1086542409456727',
+      appId: `${import.meta.env.VITE_APP_FACEBOOK_ID}`,
       cookie: true,
       xfbml: true,
       version: 'v18.0',
