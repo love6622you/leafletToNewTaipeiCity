@@ -6,7 +6,14 @@
 import 'leaflet/dist/leaflet.css';
 import { ref, onMounted, nextTick, watch } from 'vue';
 import L from 'leaflet';
-import geoJsonData from '../resource/mapData.json';
+
+import MapApi from '../api/Map';
+import { useUserStore } from '../stores/userStore';
+
+let map = null;
+let geojson = null;
+let clickPointMarker = null;
+let listMarkerGroup = null;
 
 const props = defineProps({
   list: {
@@ -16,10 +23,21 @@ const props = defineProps({
 });
 const emit = defineEmits(['update-distance']);
 
-let map = null;
-let geojson = null;
+const userStore = useUserStore();
 
 const mapRef = ref(null);
+const geoJsonData = ref([]);
+
+const onMapClick = async (e) => {
+  // 需先清空原本的 marker
+  if (clickPointMarker) {
+    map.removeLayer(clickPointMarker);
+  }
+
+  const { lat, lng } = e.latlng;
+  clickPointMarker = L.marker([lat, lng]).bindTooltip('Click Here').addTo(map);
+  await emit('update-distance', lat, lng);
+};
 
 const onEachFeature = (feature, layer) => {
   let popupContent = `
@@ -65,71 +83,84 @@ const style = (feature) => {
   };
 };
 
-// TODO: 這裡要改成從 API 拿資料
-// const fetchGetGeolocation = async () => {
-//   try {
-//     const res = await api.getGeolocation({
-//       directory: 'tucheng.json'
-//     });
-//     list.value = res.data.result;
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
+const setGeoJson = (data) => {
+  geojson = L.geoJson(data, {
+    style: style,
+    onEachFeature: onEachFeature,
+  }).addTo(map);
+};
+
+const fetchGetGeolocation = async () => {
+  try {
+    const res = await MapApi.getGeolocation({
+      directory: 'tucheng.json',
+    });
+    geoJsonData.value = res.data.result;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 watch(
   () => props.list,
   (list) => {
-    // TODO: 需要先清除掉原本的 marker (可能利用 group 來做)
-    // 否則會重複出現而且會重疊
+    // 需先清空原本的 marker
+    if (listMarkerGroup) {
+      map.removeLayer(listMarkerGroup);
+    }
+    // 重新繪製 marker
+    let markerList = [];
     list.forEach((item) => {
       const { latitude, longitude, stop_name } = item;
-      L.marker([latitude, longitude]).bindTooltip(stop_name).addTo(map);
+      markerList.push(L.marker([latitude, longitude]).bindTooltip(stop_name).addTo(map));
     });
+    listMarkerGroup = L.layerGroup(markerList).addTo(map);
   },
 );
 
-onMounted(() => {
+onMounted(async () => {
   map = L.map(mapRef.value, {
     center: [24.9705832962993, 121.44031842989698],
     zoom: 16,
     zoomControl: false,
+    layers: [
+      L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }),
+    ],
   });
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  }).addTo(map);
-
-  geojson = L.geoJson(geoJsonData.result, {
-    // 定義每個區塊的樣式
-    style: style,
-    onEachFeature: onEachFeature,
-  }).addTo(map);
-
-  // 綁定點擊地圖的事件;
-  async function onMapClick(e) {
-    const { lat, lng } = e.latlng;
-    await emit('update-distance', lat, lng);
-    // let popup = L.popup();
-    // popup
-    //   .setLatLng(e.latlng)
-    //   .setContent('You clicked the map at ' + e.latlng.toString())
-    //   .openOn(map);
-  }
+  await fetchGetGeolocation();
+  await setGeoJson(geoJsonData.value);
 
   map.on('click', onMapClick);
 
-  // nextTick(() => {
-  //   // TODO: 根據定位再去設定中心點，如果沒有定位就使用預設的
-  //   navigator.geolocation.getCurrentPosition((position) => {
-  //     console.log(position);
-  //     const { latitude, longitude } = position.coords;
-  //     // defaultConfig.value.center = [latitude, longitude];
-  //     map.setView([latitude, longitude], 16);
-  //     L.marker([latitude, longitude]).bindTooltip(`You`).addTo(map);
-  //   });
-  // });
+  nextTick(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const { latitude, longitude } = position.coords;
+      const { picture: gPicture } = userStore.google.userInfo;
+      const { picture: fPicture } = userStore.facebook.userInfo;
+      const aboutYouText = `
+      <section class="flex gap-2">
+        <div>
+          <p>Google</p>
+          <div class="w-10 h-10 mx-auto">
+            <img src=${gPicture} class="w-full rounded-full"/>
+          </div>
+        </div>
+        
+        <div>
+          <p>Facebook</p>
+          <div class="w-10 h-10 mx-auto">
+            <img src=${fPicture} class="w-full rounded-full"/>
+          </div>
+        </div>
+      </secti>
+      `;
+      L.marker([latitude, longitude]).bindTooltip(aboutYouText).addTo(map);
+    });
+  });
 });
 </script>

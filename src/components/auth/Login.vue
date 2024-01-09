@@ -6,9 +6,13 @@
       <!-- Google -->
       <div class="mx-auto w-fit py-5">
         <!-- 未登入 -->
-        <div v-if="!googleData.token" class="cursor-pointer">
-          <img src="/google.svg" alt="Google Login" @click="handleGoogleSignIn" />
-        </div>
+        <img
+          v-if="!googleData.token"
+          class="cursor-pointer"
+          src="/google.svg"
+          alt="Google Login"
+          @click="handleGoogleSignIn"
+        />
         <!-- 已登入 -->
         <div v-else class="flex">已登入 Google： {{ googleData.userInfo.name }}</div>
       </div>
@@ -16,9 +20,13 @@
       <!-- Facebook -->
       <div class="mx-auto w-fit py-5">
         <!-- 未登入 -->
-        <div v-if="!facebookData.token" @click="handleFacebookResponse">
-          <img src="/facebook.svg" alt="Facebook Login" class="cursor-pointer" />
-        </div>
+        <img
+          v-if="!facebookData.token"
+          src="/facebook.svg"
+          alt="Facebook Login"
+          class="cursor-pointer"
+          @click="handleFacebookResponse"
+        />
         <!-- 已登入 -->
         <div v-else class="flex">已登入 Facebook： {{ facebookData.userInfo.name }}</div>
       </div>
@@ -60,13 +68,6 @@ const handleGoogleSignIn = () => {
 };
 
 // Facebook
-const handleFacebookResponse = () => {
-  userStore.setUserToken('facebook', 'testok');
-  // FB.getLoginStatus(function (response) {
-  //   statusChangeCallback(response);
-  // });
-};
-
 const initFacebookSDK = () => {
   window.fbAsyncInit = function () {
     FB.init({
@@ -78,6 +79,13 @@ const initFacebookSDK = () => {
 
     FB.AppEvents.logPageView();
   };
+};
+
+const handleFacebookResponse = () => {
+  userStore.setUserToken('facebook', 'testok');
+  // FB.getLoginStatus(function (response) {
+  //   statusChangeCallback(response);
+  // });
 };
 
 onMounted(() => {

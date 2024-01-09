@@ -1,5 +1,9 @@
 <template>
-  <div class="grid grid-cols-[1fr] grid-rows-[50dvh_50dvh] bg-gray-100">
+  <div v-if="!isLogin">
+    <Login />
+  </div>
+
+  <div v-else class="grid grid-rows-[50dvh_50dvh] bg-gray-100">
     <MapController :list="list" @update-distance="fetchPostCalcDistance" />
 
     <section class="w-[clamp(300px,80%,1000px)] justify-self-center overflow-y-scroll py-4">
@@ -7,7 +11,7 @@
         v-if="!list.length"
         class="flex h-full items-center justify-center text-2xl text-gray-700"
       >
-        No Data
+        請點擊地圖上任一點，以計算距離
       </div>
 
       <div v-else class="flex flex-col gap-4">
@@ -29,13 +33,20 @@
 
 <script setup>
 import { computed, ref } from 'vue';
+
+import MapApi from './api/Map';
+import { useUserStore } from './stores/userStore';
+
 import MapController from './components/MapController.vue';
 import SearchBar from './components/SearchBar.vue';
-import MapApi from './api/Map';
+import Login from './components/auth/Login.vue';
+
+const userStore = useUserStore();
+const isLogin = computed(() => userStore.isLogin);
 
 const searchValue = ref('');
-const list = ref([]);
 
+const list = ref([]);
 const fileterList = computed(() => {
   return list.value.filter((item) => item.stop_name.includes(searchValue.value));
 });
@@ -49,8 +60,10 @@ const fetchPostCalcDistance = async (lat, lng) => {
     const res = await MapApi.postCalcDistance(data);
     const result = res.data.result;
 
+    list.value = result;
+
     // 根據 stop_name 做去重的動作
-    list.value = [...new Map(result.map((item) => [item['stop_name'], item])).values()];
+    // list.value = [...new Map(result.map((item) => [item['stop_name'], item])).values()];
   } catch (error) {
     console.log(error);
   }

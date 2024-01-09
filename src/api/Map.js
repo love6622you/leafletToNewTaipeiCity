@@ -1,6 +1,6 @@
 import api from '../lib/request';
 
-export default class Index {
+export default class Map {
   /**
    * 取得 GeoLocation Json 資訊
    */
