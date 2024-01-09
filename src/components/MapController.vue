@@ -6,7 +6,7 @@
 import 'leaflet/dist/leaflet.css';
 import { ref, onMounted, nextTick, watch } from 'vue';
 import L from 'leaflet';
-import geoJsonData from '@/resource/mapData.json';
+import geoJsonData from '../resource/mapData.json';
 
 const props = defineProps({
   list: {

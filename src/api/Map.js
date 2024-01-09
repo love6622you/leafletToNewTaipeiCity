@@ -1,4 +1,4 @@
-import api from '@/lib/request';
+import api from '../lib/request';
 
 export default class Index {
   /**
