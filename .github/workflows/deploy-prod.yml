@@ -26,6 +26,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+      VITE_APP_BASE_API: https://enterprise.oakmega.ai/api/v1/server
+      VITE_APP_GOOGLE_ID: 1069802262180-i4lupv4uccfc71ehpo7i73qvljj8893d.apps.googleusercontent.com
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
