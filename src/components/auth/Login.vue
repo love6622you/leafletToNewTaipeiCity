@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { nextTick, onMounted } from 'vue';
 import { jwtDecode } from 'jwt-decode';
 import { useUserStore } from '../../stores/userStore';
 
@@ -39,8 +39,8 @@ const facebookData = userStore.facebook;
 
 // Google
 const initGoogleSDK = () => {
-  if (window.google && window.google.accounts && window.google.accounts.id) {
-    window.google.accounts.id.initialize({
+  if (google && google.accounts && google.accounts.id) {
+    google.accounts.id.initialize({
       client_id: `${import.meta.env.VITE_APP_GOOGLE_ID}`,
       callback: handleGoogleResponse,
     });
@@ -67,8 +67,8 @@ const handleGoogleResponse = (response) => {
 };
 
 const handleGoogleSignIn = () => {
-  if (window.google && window.google.accounts && window.google.accounts.id) {
-    window.google.accounts.id.prompt();
+  if (google && google.accounts && google.accounts.id) {
+    google.accounts.id.prompt();
   }
 };
 
@@ -94,8 +94,10 @@ const handleFacebookResponse = () => {
 };
 
 onMounted(() => {
-  initGoogleSDK();
-  initFacebookSDK();
+  nextTick(() => {
+    initGoogleSDK();
+    initFacebookSDK();
+  });
 });
 </script>
 
