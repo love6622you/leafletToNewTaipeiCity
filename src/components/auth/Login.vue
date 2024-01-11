@@ -45,10 +45,13 @@ const facebookData = userStore.facebook;
 
 // Google
 const initGoogleSDK = () => {
-  google.accounts.id.initialize({
-    client_id: `${import.meta.env.VITE_APP_GOOGLE_ID}`,
-    callback: handleGoogleResponse,
-  });
+  if (window.google && window.google.accounts && window.google.accounts.id) {
+    console.log(import.meta.env.VITE_APP_GOOGLE_ID);
+    window.google.accounts.id.initialize({
+      client_id: `${import.meta.env.VITE_APP_GOOGLE_ID}`,
+      callback: handleGoogleResponse,
+    });
+  }
 };
 
 const handleGoogleResponse = (response) => {
@@ -64,7 +67,9 @@ const handleGoogleResponse = (response) => {
 };
 
 const handleGoogleSignIn = () => {
-  google.accounts.id.prompt();
+  if (window.google && window.google.accounts && window.google.accounts.id) {
+    window.google.accounts.id.prompt();
+  }
 };
 
 // Facebook
