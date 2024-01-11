@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { jwtDecode } from 'jwt-decode';
 import { useUserStore } from '../../stores/userStore';
 
