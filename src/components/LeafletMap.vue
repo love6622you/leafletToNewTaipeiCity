@@ -35,7 +35,9 @@ const onMapClick = async (e) => {
   }
 
   const { lat, lng } = e.latlng;
-  clickPointMarker = L.marker([lat, lng]).bindTooltip('Click Here').addTo(map);
+  clickPointMarker = L.marker([lat, lng], { iconUrl: '/marker-icon.png' })
+    .bindTooltip('Click Here')
+    .addTo(map);
   await emit('update-distance', lat, lng);
 };
 
@@ -112,7 +114,11 @@ watch(
     let markerList = [];
     list.forEach((item) => {
       const { latitude, longitude, stop_name } = item;
-      markerList.push(L.marker([latitude, longitude]).bindTooltip(stop_name).addTo(map));
+      markerList.push(
+        L.marker([latitude, longitude], { iconUrl: '/marker-icon.png' })
+          .bindTooltip(stop_name)
+          .addTo(map),
+      );
     });
     listMarkerGroup = L.layerGroup(markerList).addTo(map);
   },
@@ -150,7 +156,6 @@ onMounted(async () => {
             <img src=${gPicture} class="w-full rounded-full"/>
           </div>
         </div>
-        
         <div>
           <p>Facebook</p>
           <div class="w-10 h-10 mx-auto">
@@ -159,7 +164,10 @@ onMounted(async () => {
         </div>
       </secti>
       `;
-      L.marker([latitude, longitude]).bindTooltip(aboutYouText).addTo(map);
+
+      L.marker([latitude, longitude], { iconUrl: '/marker-icon.png' })
+        .bindTooltip(aboutYouText)
+        .addTo(map);
     });
   });
 });

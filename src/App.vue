@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isLogin">
+  <div v-if="isLogin">
     <Login />
   </div>
 
