@@ -146,8 +146,10 @@ onMounted(async () => {
   nextTick(() => {
     navigator.geolocation.getCurrentPosition((position) => {
       const { latitude, longitude } = position.coords;
-      const { picture: gPicture } = userStore.google.userInfo;
-      const { picture: fPicture } = userStore.facebook.userInfo;
+      const { picture: gPicture, name: gName } = userStore.google.userInfo;
+      const { picture: fPicture, name: fName } = userStore.facebook.userInfo;
+      console.log(userStore.facebook.userInfo);
+
       const aboutYouText = `
       <section class="flex gap-2">
         <div>
@@ -155,12 +157,14 @@ onMounted(async () => {
           <div class="w-10 h-10 mx-auto">
             <img src=${gPicture} class="w-full rounded-full"/>
           </div>
+          <p>${gName}</p>
         </div>
         <div>
           <p>Facebook</p>
           <div class="w-10 h-10 mx-auto">
             <img src=${fPicture} class="w-full rounded-full"/>
           </div>
+          <p>${fName}</p>
         </div>
       </secti>
       `;
