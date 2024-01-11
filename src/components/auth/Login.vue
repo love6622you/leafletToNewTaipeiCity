@@ -47,8 +47,6 @@ const initGoogleSDK = () => {
     google.accounts.id.initialize({
       client_id: `${import.meta.env.VITE_APP_GOOGLE_ID}`,
       callback: handleGoogleResponse,
-      login_uri: 'love6622you.github.io',
-      state_cookie_domain: 'https://login.love6622you.github.io/leafletToNewTaipeiCity',
     });
 
     google.accounts.id.renderButton(googleBtnRef.value, {
