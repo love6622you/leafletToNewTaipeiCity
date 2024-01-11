@@ -21,7 +21,7 @@
           src="/facebook.svg"
           alt="Facebook Login"
           class="cursor-pointer"
-          @click="handleFacebookResponse"
+          @click="onFBLogin"
         />
         <!-- 已登入 -->
         <div v-else class="flex">已登入 Facebook： {{ facebookData.userInfo.name }}</div>
@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { jwtDecode } from 'jwt-decode';
 import { useUserStore } from '../../stores/userStore';
 
@@ -41,7 +41,7 @@ const facebookData = userStore.facebook;
 
 const googleBtnRef = ref(null);
 
-// Google
+//#region Google
 const createGoogleScript = (callback) => {
   if (!window.google) {
     const script = document.createElement('script');
@@ -82,31 +82,68 @@ const handleGoogleResponse = (response) => {
   userStore.setUserToken('google', response.credential);
   userStore.setUserInfo('google', userInfo);
 };
+//#endregion
 
-// Facebook
-const initFacebookSDK = () => {
-  window.fbAsyncInit = function () {
-    FB.init({
-      appId: `${import.meta.env.VITE_APP_FACEBOOK_ID}`,
-      cookie: true,
-      xfbml: true,
-      version: 'v18.0',
-    });
+//#region Facebook
 
-    FB.AppEvents.logPageView();
-  };
+const createFacebookScript = (callback = () => {}) => {
+  if (!window.FB) {
+    window.fbAsyncInit = function () {
+      window.FB.init({
+        appId: `${import.meta.env.VITE_APP_FACEBOOK_ID}`,
+        cookie: true,
+        xfbml: true,
+        version: 'v18.0',
+      });
+    };
+    // 创建script标签引入facebook得sdk
+    const script = document.createElement('script');
+    script.src = 'https://connect.facebook.net/en_US/sdk.js';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      callback();
+    };
+    document.body.appendChild(script);
+  } else {
+    callback();
+  }
 };
 
-const handleFacebookResponse = () => {
-  userStore.setUserToken('facebook', 'testok');
-  // FB.getLoginStatus(function (response) {
-  //   statusChangeCallback(response);
-  // });
+const getFBProfile = (fields = ['name', 'id', 'picture']) => {
+  window.FB.api(`/me?fields=${fields.join(',')}`, (profile) => {
+    if (profile.error) {
+      alert('get profile Error');
+    } else {
+      userStore.setUserInfo('facebook', {
+        ...profile,
+        picture: profile.picture.data.url,
+      });
+    }
+  });
 };
+
+const onFBLogin = () => {
+  window.FB.login(
+    (response) => {
+      if (response.status === 'connected') {
+        const token = response.authResponse.accessToken;
+        userStore.setUserToken('facebook', token);
+
+        getFBProfile();
+      } else {
+        alert('facebook login error');
+      }
+    },
+    { scope: 'public_profile,email' },
+  );
+};
+
+//#endregion
 
 onMounted(() => {
   createGoogleScript(initGoogleSDK);
-  initFacebookSDK();
+  createFacebookScript();
 });
 </script>
 

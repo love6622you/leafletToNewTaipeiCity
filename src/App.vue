@@ -4,7 +4,7 @@
   </div>
 
   <div v-else class="grid grid-rows-[50dvh_50dvh] bg-gray-100">
-    <MapController :list="list" @update-distance="fetchPostCalcDistance" />
+    <LeafletMap :list="list" @update-distance="fetchPostCalcDistance" />
 
     <section class="w-[clamp(300px,80%,1000px)] justify-self-center overflow-y-scroll py-4">
       <div
@@ -37,7 +37,7 @@ import { computed, ref } from 'vue';
 import MapApi from './api/Map';
 import { useUserStore } from './stores/userStore';
 
-import MapController from './components/MapController.vue';
+import LeafletMap from './components/LeafletMap.vue';
 import SearchBar from './components/SearchBar.vue';
 import Login from './components/auth/Login.vue';
 
