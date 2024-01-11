@@ -92,6 +92,7 @@ const handleFacebookResponse = () => {
 };
 
 onMounted(() => {
+  console.log(window.google);
   nextTick(() => {
     initGoogleSDK();
     initFacebookSDK();
