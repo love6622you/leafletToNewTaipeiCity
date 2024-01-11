@@ -6,7 +6,13 @@
       <!-- Google -->
       <div class="mx-auto w-fit py-5">
         <!-- 未登入 -->
-        <div v-if="!googleData.token" id="signinGoogleIcon" @click="handleGoogleSignIn" />
+        <img
+          v-if="!googleData.token"
+          class="cursor-pointer"
+          src="/google.svg"
+          alt="Google Login"
+          @click="handleGoogleSignIn"
+        />
         <!-- 已登入 -->
         <div v-else class="flex">已登入 Google： {{ googleData.userInfo.name }}</div>
       </div>
@@ -40,16 +46,10 @@ const facebookData = userStore.facebook;
 // Google
 const initGoogleSDK = () => {
   if (window.google && window.google.accounts && window.google.accounts.id) {
+    console.log(import.meta.env.VITE_APP_GOOGLE_ID);
     window.google.accounts.id.initialize({
       client_id: `${import.meta.env.VITE_APP_GOOGLE_ID}`,
       callback: handleGoogleResponse,
-    });
-
-    google.accounts.id.renderButton(document.getElementById('signinGoogleIcon'), {
-      theme: 'outline',
-      size: 'large',
-      type: 'icon',
-      shape: 'circle',
     });
   }
 };
