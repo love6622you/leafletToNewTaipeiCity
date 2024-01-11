@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { jwtDecode } from 'jwt-decode';
 import { useUserStore } from '../../stores/userStore';
 
@@ -42,20 +42,33 @@ const facebookData = userStore.facebook;
 const googleBtnRef = ref(null);
 
 // Google
-const initGoogleSDK = () => {
-  if (google && google.accounts && google.accounts.id) {
-    google.accounts.id.initialize({
-      client_id: `${import.meta.env.VITE_APP_GOOGLE_ID}`,
-      callback: handleGoogleResponse,
-    });
-
-    google.accounts.id.renderButton(googleBtnRef.value, {
-      theme: 'outline',
-      size: 'large',
-      type: 'icon',
-      shape: 'circle',
-    });
+const createGoogleScript = (callback) => {
+  if (!window.google) {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      callback();
+    };
+    document.body.appendChild(script);
+  } else {
+    callback();
   }
+};
+
+const initGoogleSDK = () => {
+  google.accounts.id.initialize({
+    client_id: `${import.meta.env.VITE_APP_GOOGLE_ID}`,
+    callback: handleGoogleResponse,
+  });
+
+  google.accounts.id.renderButton(googleBtnRef.value, {
+    theme: 'outline',
+    size: 'large',
+    type: 'icon',
+    shape: 'circle',
+  });
 };
 
 const handleGoogleResponse = (response) => {
@@ -92,10 +105,8 @@ const handleFacebookResponse = () => {
 };
 
 onMounted(() => {
-  nextTick(() => {
-    initGoogleSDK();
-    initFacebookSDK();
-  });
+  createGoogleScript(initGoogleSDK);
+  initFacebookSDK();
 });
 </script>
 
