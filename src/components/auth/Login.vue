@@ -6,7 +6,9 @@
       <!-- Google -->
       <div class="mx-auto w-fit py-5">
         <!-- 未登入 -->
-        <div v-if="!googleData.token" id="signinGoogleIcon" @click="handleGoogleSignIn" />
+        <template v-if="!googleData.token">
+          <div ref="googleBtnRef" />
+        </template>
         <!-- 已登入 -->
         <div v-else class="flex">已登入 Google： {{ googleData.userInfo.name }}</div>
       </div>
@@ -29,13 +31,15 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted } from 'vue';
+import { nextTick, onMounted, ref } from 'vue';
 import { jwtDecode } from 'jwt-decode';
 import { useUserStore } from '../../stores/userStore';
 
 const userStore = useUserStore();
 const googleData = userStore.google;
 const facebookData = userStore.facebook;
+
+const googleBtnRef = ref(null);
 
 // Google
 const initGoogleSDK = () => {
@@ -45,7 +49,7 @@ const initGoogleSDK = () => {
       callback: handleGoogleResponse,
     });
 
-    google.accounts.id.renderButton(document.getElementById('signinGoogleIcon'), {
+    google.accounts.id.renderButton(googleBtnRef.value, {
       theme: 'outline',
       size: 'large',
       type: 'icon',
@@ -64,12 +68,6 @@ const handleGoogleResponse = (response) => {
 
   userStore.setUserToken('google', response.credential);
   userStore.setUserInfo('google', userInfo);
-};
-
-const handleGoogleSignIn = () => {
-  if (google && google.accounts && google.accounts.id) {
-    google.accounts.id.prompt();
-  }
 };
 
 // Facebook
