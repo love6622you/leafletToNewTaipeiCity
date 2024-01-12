@@ -164,7 +164,7 @@ onMounted(async () => {
           <div class="w-10 h-10 mx-auto">
             <img src=${fPicture} class="w-full rounded-full"/>
           </div>
-          <p>${fName}</p>
+          <p>${fName ?? ''}</p>
         </div>
       </secti>
       `;

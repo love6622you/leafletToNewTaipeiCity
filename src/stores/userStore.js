@@ -14,7 +14,7 @@ export const InitialUserState = () => ({
 export const useUserStore = defineStore('user', {
   state: () => InitialUserState(),
   getters: {
-    isLogin: (state) => !!state.google.token && !!state.facebook.token,
+    isLogin: (state) => !!state.google.token || !!state.facebook.token,
   },
   actions: {
     setUserToken(type, token) {
