@@ -23,6 +23,12 @@
           class="cursor-pointer"
           @click="onFBLogin"
         />
+        <fb:login-button
+          v-if="!facebookData.token"
+          scope="public_profile,email"
+          onlogin="checkLoginState();"
+        >
+        </fb:login-button>
         <!-- 已登入 -->
         <div v-else class="flex">已登入 Facebook： {{ facebookData.userInfo.name }}</div>
       </div>
@@ -87,57 +93,79 @@ const handleGoogleResponse = (response) => {
 //#region Facebook
 
 const createFacebookScript = (callback = () => {}) => {
-  if (!window.FB) {
-    window.fbAsyncInit = function () {
-      window.FB.init({
-        appId: `${import.meta.env.VITE_APP_FACEBOOK_ID}`,
-        cookie: true,
-        xfbml: true,
-        version: 'v18.0',
-      });
-    };
-    // 创建script标签引入facebook得sdk
-    const script = document.createElement('script');
-    script.src = 'https://connect.facebook.net/en_US/sdk.js';
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      callback();
-    };
-    document.body.appendChild(script);
+  window.fbAsyncInit = function () {
+    FB.init({
+      appId: `${import.meta.env.VITE_APP_FACEBOOK_ID}`,
+      cookie: true,
+      xfbml: true,
+      version: 'v18.0',
+    });
+
+    FB.getLoginStatus(function (response) {
+      // Called after the JS SDK has been initialized.
+      statusChangeCallback(response); // Returns the login status.
+    });
+  };
+};
+
+function statusChangeCallback(response) {
+  // Called with the results from FB.getLoginStatus().
+  console.log('statusChangeCallback');
+  console.log(response); // The current login status of the person.
+  if (response.status === 'connected') {
+    // Logged into your webpage and Facebook.
+    testAPI();
   } else {
-    callback();
+    // Not logged into your webpage or we are unable to tell.
+    document.getElementById('status').innerHTML = 'Please log ' + 'into this webpage.';
   }
-};
+}
 
-const getFBProfile = (fields = ['name', 'id', 'picture']) => {
-  window.FB.api(`/me?fields=${fields.join(',')}`, (profile) => {
-    if (profile.error) {
-      alert('get profile Error');
-    } else {
-      userStore.setUserInfo('facebook', {
-        ...profile,
-        picture: profile.picture.data.url,
-      });
-    }
+function checkLoginState() {
+  // Called when a person is finished with the Login Button.
+  FB.getLoginStatus(function (response) {
+    // See the onlogin handler
+    statusChangeCallback(response);
   });
-};
+}
 
-const onFBLogin = () => {
-  window.FB.login(
-    (response) => {
-      if (response.status === 'connected') {
-        const token = response.authResponse.accessToken;
-        userStore.setUserToken('facebook', token);
+function testAPI() {
+  // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+  console.log('Welcome!  Fetching your information.... ');
+  FB.api('/me', function (response) {
+    console.log('Successful login for: ' + response.name);
+    document.getElementById('status').innerHTML = 'Thanks for logging in, ' + response.name + '!';
+  });
+}
 
-        getFBProfile();
-      } else {
-        alert('facebook login error');
-      }
-    },
-    { scope: 'public_profile,email' },
-  );
-};
+// const getFBProfile = (fields = ['name', 'id', 'picture']) => {
+//   window.FB.api(`/me?fields=${fields.join(',')}`, (profile) => {
+//     if (profile.error) {
+//       alert('get profile Error');
+//     } else {
+//       userStore.setUserInfo('facebook', {
+//         ...profile,
+//         picture: profile.picture.data.url,
+//       });
+//     }
+//   });
+// };
+
+// const onFBLogin = () => {
+//   window.FB.login(
+//     (response) => {
+//       if (response.status === 'connected') {
+//         const token = response.authResponse.accessToken;
+//         userStore.setUserToken('facebook', token);
+
+//         getFBProfile();
+//       } else {
+//         alert('facebook login error');
+//       }
+//     },
+//     { scope: 'public_profile,email' },
+//   );
+// };
 
 //#endregion
 
