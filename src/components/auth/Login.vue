@@ -14,7 +14,7 @@
       </div>
 
       <!-- Facebook -->
-      <div class="mx-auto w-fit py-5" hidden>
+      <div class="mx-auto w-fit py-5">
         <!-- 未登入 -->
         <img
           v-if="!facebookData.token"
