@@ -26,7 +26,9 @@
         <fb:login-button
           v-if="!facebookData.token"
           scope="public_profile,email"
-          onlogin="checkLoginState();"
+          v-bind="{
+            onlogin: checkLoginState(),
+          }"
         >
         </fb:login-button>
         <!-- 已登入 -->
