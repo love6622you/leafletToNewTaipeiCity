@@ -3,8 +3,15 @@ import { createPinia } from 'pinia';
 import './style.css';
 import App from './App.vue';
 
-const pinia = createPinia();
-const app = createApp(App);
+import { initFacebookSdk } from './utils/util';
 
-app.use(pinia);
-app.mount('#app');
+function startApp() {
+  const pinia = createPinia();
+  const app = createApp(App);
+
+  app.use(pinia);
+  app.mount('#app');
+}
+
+// wait for facebook sdk to start app
+initFacebookSdk().then(startApp);
