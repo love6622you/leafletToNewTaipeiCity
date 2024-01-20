@@ -88,6 +88,7 @@ const handleGoogleResponse = (response) => {
 
 const getFBProfile = (fields = ['name', 'id', 'picture']) => {
   window.FB.api(`/me?fields=${fields.join(',')}`, (profile) => {
+    console.log(profile);
     if (profile.error) {
       alert('get profile Error');
     } else {
@@ -111,7 +112,8 @@ const onFBLogin = () => {
         alert('facebook login error');
       }
     },
-    { scope: 'public_profile,email' },
+    // { scope: 'public_profile,email' },
+    { scope: 'user_photos' },
   );
 };
 
